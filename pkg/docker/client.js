@@ -22,6 +22,8 @@ import cockpit from "cockpit";
 import { util } from "./util";
 import { docker } from "./docker";
 
+const API_VERSION = "v1.44";
+
 function ignoreException(ex) {
     if (ex.status == 500 && ex.message && ex.message.indexOf("layer does not exist") === 0) {
         console.warn(ex);
@@ -58,7 +60,7 @@ function DockerClient() {
             return;
 
         /* Trigger the event signal when JSON from /events */
-        events = http.get("/v1.12/events");
+        events = http.get("/" + API_VERSION + "/events");
         events.stream(function(resp) {
             util.docker_debug("event:", resp);
             trigger_event();
@@ -161,7 +163,7 @@ function DockerClient() {
          * /events for notification when something changes as well as some
          * file monitoring.
          */
-        http.get("/v1.12/containers/json", { all: 1 })
+        http.get("/" + API_VERSION + "/containers/json", { all: 1 })
                 .done(function(data) {
                     var containers = JSON.parse(data);
                     alive = true;
@@ -174,7 +176,7 @@ function DockerClient() {
 
                         seen[id] = id;
                         containers_meta[id] = item;
-                        http.get("/v1.12/containers/" + encodeURIComponent(id) + "/json")
+                        http.get("/" + API_VERSION + "/containers/" + encodeURIComponent(id) + "/json")
                                 .done(function(data) {
                                     var container = JSON.parse(data);
                                     populate_container(id, container);
@@ -330,7 +332,7 @@ function DockerClient() {
         /*
          * Gets a list of images and keeps it up to date.
          */
-        http.get("/v1.12/images/json")
+        http.get("/" + API_VERSION + "/images/json")
                 .done(function(data) {
                     var images = JSON.parse(data);
                     alive = true;
@@ -343,7 +345,7 @@ function DockerClient() {
 
                         seen[id] = id;
                         images_meta[id] = item;
-                        http.get("/v1.12/images/" + encodeURIComponent(id) + "/json")
+                        http.get("/" + API_VERSION + "/images/" + encodeURIComponent(id) + "/json")
                                 .done(function(data) {
                                     var image = JSON.parse(data);
                                     populate_image(id, image);
@@ -371,7 +373,7 @@ function DockerClient() {
     }
 
     function fetch_info() {
-        http.get("/v1.12/info")
+        http.get("/" + API_VERSION + "/info")
                 .fail(function(ex) {
                     util.docker_debug("info failed:", ex);
 
@@ -495,7 +497,7 @@ function DockerClient() {
         util.docker_debug("starting:", id);
         return http.request({
             method: "POST",
-            path: "/v1.12/containers/" + encodeURIComponent(id) + "/start",
+            path: "/" + API_VERSION + "/containers/" + encodeURIComponent(id) + "/start",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(options || { })
         })
@@ -517,7 +519,7 @@ function DockerClient() {
         util.docker_debug("stopping:", id, timeout);
         return http.request({
             method: "POST",
-            path: "/v1.12/containers/" + encodeURIComponent(id) + "/stop",
+            path: "/" + API_VERSION + "/containers/" + encodeURIComponent(id) + "/stop",
             params: { t: timeout },
             body: ""
         })
@@ -539,7 +541,7 @@ function DockerClient() {
         util.docker_debug("restarting:", id);
         return http.request({
             method: "POST",
-            path: "/v1.12/containers/" + encodeURIComponent(id) + "/restart",
+            path: "/" + API_VERSION + "/containers/" + encodeURIComponent(id) + "/restart",
             params: { t: timeout },
             body: ""
         })
@@ -559,7 +561,7 @@ function DockerClient() {
         util.docker_debug("creating:", name, body);
         return http.request({
             method: "POST",
-            path: "/v1.12/containers/create",
+            path: "/" + API_VERSION + "/containers/create",
             params: { name: name },
             headers: { "Content-Type": "application/json" },
             body: body,
@@ -575,7 +577,7 @@ function DockerClient() {
 
     this.search = function search(term) {
         util.docker_debug("searching:", term);
-        return http.get("/v1.12/images/search", { term: term })
+        return http.get("/" + API_VERSION + "/images/search", { term: term })
                 .fail(function(ex) {
                     util.docker_debug("search failed:", term, ex);
                 })
@@ -595,7 +597,7 @@ function DockerClient() {
         util.docker_debug("committing:", id, repotag, options, run_config);
         return http.request({
             method: "POST",
-            path: "/v1.12/commit",
+            path: "/" + API_VERSION + "/commit",
             params: args,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(run_config || { })
@@ -619,7 +621,7 @@ function DockerClient() {
         util.docker_debug("deleting:", id);
         return http.request({
             method: "DELETE",
-            path: "/v1.12/containers/" + encodeURIComponent(id),
+            path: "/" + API_VERSION + "/containers/" + encodeURIComponent(id),
             params: { force: forced },
             body: ""
         })
@@ -641,7 +643,7 @@ function DockerClient() {
         util.docker_debug("deleting:", id);
         return http.request({
             method: "DELETE",
-            path: "/v1.12/images/" + encodeURIComponent(id),
+            path: "/" + API_VERSION + "/images/" + encodeURIComponent(id),
             params: { force: forced },
             body: ""
         })
@@ -751,7 +753,7 @@ function DockerClient() {
 
     this.containers_for_image = function containers_for_image(id) {
         util.docker_debug('containers search on image id: ', id);
-        return http.get('/v1.12/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [id] }) })
+        return http.get('/" + API_VERSION + "/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [id] }) })
                 .fail(function(ex) {
                     util.docker_debug('containers search on image id failed:', id, ex);
                 })

@@ -24,6 +24,8 @@ import { Terminal } from "xterm";
 
 export var docker = { };
 
+const API_VERSION = "v1.44";
+
 function docker_debug() {
     if (window.debugging == "all" || window.debugging == "docker")
         console.debug.apply(console, arguments);
@@ -63,7 +65,7 @@ docker.pull = function pull(repo, tag, registry) {
 
     var options = {
         method: "POST",
-        path: "/v1.12/images/create",
+        path: "/" + API_VERSION + "/images/create",
         body: "",
         params: {
             fromImage: repo,
@@ -109,7 +111,7 @@ docker.pull = function pull(repo, tag, registry) {
 /* Gets image info locally */
 docker.inspect_image = function inspect_image(image) {
     var dfd = $.Deferred();
-    http.get("/v1.12/images/" + encodeURIComponent(image) + "/json")
+    http.get("/" + API_VERSION + "/images/" + encodeURIComponent(image) + "/json")
             .done(function(data) {
                 dfd.resolve(JSON.parse(data));
             })
