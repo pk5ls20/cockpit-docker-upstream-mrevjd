@@ -753,7 +753,7 @@ function DockerClient() {
 
     this.containers_for_image = function containers_for_image(id) {
         util.docker_debug('containers search on image id: ', id);
-        return http.get('/" + API_VERSION + "/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [id] }) })
+        return http.get('/' + API_VERSION + '/containers/json', { all: 1, filters: JSON.stringify({ ancestor: [id] }) })
                 .fail(function(ex) {
                     util.docker_debug('containers search on image id failed:', id, ex);
                 })
