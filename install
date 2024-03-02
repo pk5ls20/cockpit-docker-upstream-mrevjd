@@ -22,13 +22,10 @@ docker run -it \
 --name cockpit-docker \
 cockpit-docker
 
-# Remove user module dir
-rm -rf $HOME/.local/share/cockpit/docker
 
-# Link as user module
+rm -rf /usr/share/cockpit/docker
 rm $PWD/dist/docker/*test*
-mkdir -p ~/.local/share/cockpit
-ln -snf $PWD/dist/docker $HOME/.local/share/cockpit/docker
+cp -r $PWD/dist/docker /usr/share/cockpit/docker
 
 echo "===> List of packages, if all went fine this list should container docker"
 cockpit-bridge --packages
